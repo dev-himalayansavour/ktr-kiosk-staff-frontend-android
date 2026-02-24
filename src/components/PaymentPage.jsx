@@ -90,14 +90,14 @@ const PaymentPage = () => {
     return config ? JSON.parse(config) : { store_id: 'default' };
   };
 
-  // Check if store configuration exists, redirect to config if not
-  useEffect(() => {
-    const config = localStorage.getItem('kiosk_config');
-    if (!config) {
-      alert('Please configure your EDC machine first');
-      navigate('/config');
-    }
-  }, [navigate]);
+  // EDC config check removed — EDC machine is no longer used (only Cash & UPI/QR active)
+  // useEffect(() => {
+  //   const config = localStorage.getItem('kiosk_config');
+  //   if (!config) {
+  //     alert('Please configure your EDC machine first');
+  //     navigate('/config');
+  //   }
+  // }, [navigate]);
 
   // Convert amount to paise (INR * 100)
   const amountInPaise = Math.round(totalAmount * 100).toString();
@@ -646,7 +646,7 @@ const PaymentPage = () => {
             )}
           </div>
 
-  {/* Cash Payment */}
+          {/* Cash Payment */}
           <div className={`payment-method-card ${selectedMethod === 'cash' ? 'selected' : ''} ${selectedMethod && selectedMethod !== 'cash' ? 'disabled' : ''}`}>
             <div className="method-header">
               <div className="method-info">
