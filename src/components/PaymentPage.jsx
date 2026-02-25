@@ -190,115 +190,115 @@ const PaymentPage = () => {
   // EDC CARD PAYMENT HANDLERS
   // ============================================
 
-  const handleEDCPayment = async () => {
-    setLoadingEDC(true);
-    setError(null);
+  // const handleEDCPayment = async () => {
+  //   setLoadingEDC(true);
+  //   setError(null);
 
-    try {
-      const config = getStoreConfig();
+  //   try {
+  //     const config = getStoreConfig();
 
-      const response = await fetch(`${BASE_URL}/payments/edc/init`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          amount_paise: amountInPaise,
-          store_id: config.store_id
-        })
-      });
+  //     const response = await fetch(`${BASE_URL}/payments/edc/init`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         "ngrok-skip-browser-warning": "true"
+  //       },
+  //       body: JSON.stringify({
+  //         order_id: orderId,
+  //         amount_paise: amountInPaise,
+  //         store_id: config.store_id
+  //       })
+  //     });
 
-      if (!response.ok) throw new Error('Failed to initialize EDC payment');
+  //     if (!response.ok) throw new Error('Failed to initialize EDC payment');
 
-      const result = await response.json();
-      setEdcData(result);
-      setPaymentStatus('PROCESSING');
-      setTimeRemaining(100);
-      setTimerActive(true);
+  //     const result = await response.json();
+  //     setEdcData(result);
+  //     setPaymentStatus('PROCESSING');
+  //     setTimeRemaining(100);
+  //     setTimerActive(true);
 
-      // Trigger mock payment then start polling
-      // await triggerMockPayment();                   // mock pay trigger shutdown
-      startEDCStatusPolling();
+  //     // Trigger mock payment then start polling
+  //     // await triggerMockPayment();                   // mock pay trigger shutdown
+  //     startEDCStatusPolling();
 
-    } catch (error) {
-      console.error('EDC Initialization Error:', error);
-      setError('Failed to initialize card payment. Please try again.');
-      setLoadingEDC(false);
-    } finally {
-      setLoadingEDC(false);
-    }
-  };
+  //   } catch (error) {
+  //     console.error('EDC Initialization Error:', error);
+  //     setError('Failed to initialize card payment. Please try again.');
+  //     setLoadingEDC(false);
+  //   } finally {
+  //     setLoadingEDC(false);
+  //   }
+  // };
 
-  const triggerMockPayment = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/payments/edc/mock-trigger`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify({ order_id: orderId })
-      });
+  // const triggerMockPayment = async () => {
+  //   try {
+  //     const response = await fetch(`${BASE_URL}/payments/edc/mock-trigger`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "ngrok-skip-browser-warning": "true"
+  //       },
+  //       body: JSON.stringify({ order_id: orderId })
+  //     });
 
-      if (!response.ok) throw new Error('Failed to trigger mock payment');
+  //     if (!response.ok) throw new Error('Failed to trigger mock payment');
 
-      // Wait for PhonePe processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+  //     // Wait for PhonePe processing
+  //     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    } catch (error) {
-      console.error("Mock Payment Error:", error);
-      setError('Failed to process payment. Please try again.');
-      throw error;
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Mock Payment Error:", error);
+  //     setError('Failed to process payment. Please try again.');
+  //     throw error;
+  //   }
+  // };
 
-  const startEDCStatusPolling = () => {
-    let pollCount = 0;
-    const maxPolls = 120;
+  // const startEDCStatusPolling = () => {
+  //   let pollCount = 0;
+  //   const maxPolls = 120;
 
-    pollingRef.current = setInterval(async () => {
-      pollCount++;
+  //   pollingRef.current = setInterval(async () => {
+  //     pollCount++;
 
-      if (pollCount > maxPolls) {
-        clearInterval(pollingRef.current);
-        setPaymentStatus('TIMEOUT');
-        setError('Payment timeout. Redirecting...');
-        setTimeout(() => navigate('/'), 2000);
-        return;
-      }
+  //     if (pollCount > maxPolls) {
+  //       clearInterval(pollingRef.current);
+  //       setPaymentStatus('TIMEOUT');
+  //       setError('Payment timeout. Redirecting...');
+  //       setTimeout(() => navigate('/'), 2000);
+  //       return;
+  //     }
 
-      try {
-        const response = await fetch(`${BASE_URL}/payments/edc/status/${orderId}`, {
-          headers: { "ngrok-skip-browser-warning": "true" }
-        });
+  //     try {
+  //       const response = await fetch(`${BASE_URL}/payments/edc/status/${orderId}`, {
+  //         headers: { "ngrok-skip-browser-warning": "true" }
+  //       });
 
-        if (!response.ok) throw new Error('Failed to check status');
+  //       if (!response.ok) throw new Error('Failed to check status');
 
-        const result = await response.json();
+  //       const result = await response.json();
 
-        if (result.payment_status === 'COMPLETED') {
-          setPaymentStatus('SUCCESS');
-          setTransactionDetails(result);
-          setKDSInvoiceId(result.kds_invoice_id);
-          clearCart();
-          localStorage.removeItem('restaurantCart');
-          clearInterval(pollingRef.current);
-          setShowTokenPage(true);
-        } else if (result.payment_status === 'FAILED' || result.payment_status === 'CANCELLED') {
-          setPaymentStatus('FAILED');
-          setError('Payment failed or cancelled. Redirecting...');
-          clearInterval(pollingRef.current);
-          setTimeout(() => navigate('/'), 2000);
-        }
+  //       if (result.payment_status === 'COMPLETED') {
+  //         setPaymentStatus('SUCCESS');
+  //         setTransactionDetails(result);
+  //         setKDSInvoiceId(result.kds_invoice_id);
+  //         clearCart();
+  //         localStorage.removeItem('restaurantCart');
+  //         clearInterval(pollingRef.current);
+  //         setShowTokenPage(true);
+  //       } else if (result.payment_status === 'FAILED' || result.payment_status === 'CANCELLED') {
+  //         setPaymentStatus('FAILED');
+  //         setError('Payment failed or cancelled. Redirecting...');
+  //         clearInterval(pollingRef.current);
+  //         setTimeout(() => navigate('/'), 2000);
+  //       }
 
-      } catch (error) {
-        console.error('EDC Status Check Error:', error);
-        // Continue polling on network errors
-      }
-    }, 3000);
-  };
+  //     } catch (error) {
+  //       console.error('EDC Status Check Error:', error);
+  //       // Continue polling on network errors
+  //     }
+  //   }, 3000);
+  // };
 
   // ============================================
   // CASH PAYMENT HANDLERS
